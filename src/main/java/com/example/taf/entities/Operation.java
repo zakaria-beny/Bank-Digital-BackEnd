@@ -1,9 +1,6 @@
-package entities;
+package com.example.taf.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
@@ -20,5 +17,9 @@ public class Operation {
     private Date dateOp;
     private double montant;
     private TypeOp type;
+
+    @ManyToOne
+
+    private CompteBancaire compteBancaire;
 
 }

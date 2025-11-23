@@ -1,7 +1,10 @@
-package entities;
+package com.example.taf.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter @Setter @ToString @NoArgsConstructor @AllArgsConstructor
@@ -12,6 +15,6 @@ public class Client {
     private Long id;
     private String nom;
     private String email;
-    @OneToMany
-    private CompteBancaire compteBancaire;
+    @OneToMany(mappedBy = "client")
+    private List<CompteBancaire> comptes = new ArrayList<>();
 }

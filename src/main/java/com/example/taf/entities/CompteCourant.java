@@ -1,4 +1,4 @@
-package entities;
+package com.example.taf.entities;
 
 import jakarta.persistence.Entity;
 

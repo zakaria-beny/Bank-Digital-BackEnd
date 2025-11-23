@@ -1,9 +1,12 @@
-package entities;
+package com.example.taf.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -20,8 +23,11 @@ public class CompteBancaire {
     private StatCompte statut;
     private  String devise;
 
-    @OneToMany
-    private Operation operation;
+    @OneToMany(mappedBy = "compteBancaire")
+    private List<Operation> operations = new ArrayList<>();
 
+    @ManyToOne
+
+    private Client client;
 
 }
