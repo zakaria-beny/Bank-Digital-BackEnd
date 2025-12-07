@@ -13,6 +13,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Inheritance(strategy = InheritanceType.JOINED)
 public class CompteBancaire {
     @Id
@@ -20,10 +21,11 @@ public class CompteBancaire {
     private Long id;
     private Date dateCreation ;
     private double solde;
+    @Enumerated(EnumType.STRING)
     private StatCompte statut;
     private  String devise;
 
-    @OneToMany(mappedBy = "compteBancaire")
+    @OneToMany(mappedBy = "compteBancaire",fetch = FetchType.EAGER)
     private List<Operation> operations = new ArrayList<>();
 
     @ManyToOne

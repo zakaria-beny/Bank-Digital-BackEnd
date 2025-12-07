@@ -10,12 +10,14 @@ import java.util.Date;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Operation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Date dateOp;
     private double montant;
+    @Enumerated(EnumType.STRING)
     private TypeOp type;
 
     @ManyToOne

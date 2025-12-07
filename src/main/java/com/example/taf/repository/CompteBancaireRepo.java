@@ -7,6 +7,4 @@ import java.util.List;
 
 public interface CompteBancaireRepo extends JpaRepository<CompteBancaire, Long>
 {
-    List<CompteBancaire> findByStatut(int statut);
-    List<CompteBancaire> findByDevise(String devise);
 }

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter @Setter @ToString @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter  @NoArgsConstructor @AllArgsConstructor @Builder
 
 public class Client {
     @Id
@@ -15,6 +15,9 @@ public class Client {
     private Long id;
     private String nom;
     private String email;
-    @OneToMany(mappedBy = "client")
+
+    @OneToMany(mappedBy = "client",fetch=FetchType.EAGER)
     private List<CompteBancaire> comptes = new ArrayList<>();
+
+
 }
