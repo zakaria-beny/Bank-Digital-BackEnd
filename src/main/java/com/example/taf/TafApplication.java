@@ -10,15 +10,14 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class TafApplication {
 
+
     public static void main(String[] args) {
         SpringApplication.run(TafApplication.class, args);
     }
-    @Bean
+    //@Bean
     CommandLineRunner start(ClientRepo clientRepository) {
         return args -> {
-            Client c = new Client("Amina" ,"amina@mail.com");
-            clientRepository.save(c);
-            System.out.println("Client enregistré : " + c.getNom());
+
         };
     }
 }

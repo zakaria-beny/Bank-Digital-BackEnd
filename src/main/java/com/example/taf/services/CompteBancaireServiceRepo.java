@@ -8,11 +8,13 @@ import java.util.List;
 public interface CompteBancaireServiceRepo {
     Client saveClient(Client client) ;
 
-    CompteBancaire saveCompteBancaire(double initialsold ,String type,Long ClientId);
+    CompteBancaire saveCourantCompteBancaire(double initialsold , double decouvert,Long ClientId);
+    CompteBancaire saveEpargneCompteBancaire(double initialsold ,double tauxInteret,Long ClientId);
+
     List<Client> listClients();
-    CompteBancaire getCompteBancaireById(Long id);
-    void debit(Long accountId,String type);
-    void credit(Long accountId,String type);
-    void transfer(Long accountIdSource,String accountIdDestination,Double amount);
+    CompteBancaire getCompteBancaireById(String id);
+    void debit(String accountId,Double amount,String Description);
+    void credit(String accountId,Double amount,String Description);
+    void transfer(String accountIdSource,String accountIdDestination,Double amount);
 
 }

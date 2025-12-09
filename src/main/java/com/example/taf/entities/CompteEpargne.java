@@ -1,14 +1,14 @@
 package com.example.taf.entities;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.*;
 
 @Entity
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Data
+@DiscriminatorValue("CompteEpargne")
 public class CompteEpargne extends CompteBancaire{
     private double tauxInteret;
 }
