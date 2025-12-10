@@ -19,6 +19,7 @@ import java.util.List;
 public class CompteBancaire {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id;
     private Date dateCreation ;
     private double solde;

@@ -6,15 +6,16 @@ import com.example.taf.entities.CompteBancaire;
 import java.util.List;
 
 public interface CompteBancaireServiceRepo {
-    Client saveClient(Client client) ;
+    Client saveClient(Client client);
 
-    CompteBancaire saveCourantCompteBancaire(double initialsold , double decouvert,Long ClientId);
-    CompteBancaire saveEpargneCompteBancaire(double initialsold ,double tauxInteret,Long ClientId);
+    CompteBancaire saveCourantCompteBancaire(double initialSold, double decouvert, Long clientId);
+    CompteBancaire saveEpargneCompteBancaire(double initialSold, double tauxInteret, Long clientId);
 
     List<Client> listClients();
-    CompteBancaire getCompteBancaireById(String id);
-    void debit(String accountId,Double amount,String Description);
-    void credit(String accountId,Double amount,String Description);
-    void transfer(String accountIdSource,String accountIdDestination,Double amount);
+    CompteBancaire getCompteBancaireById(Long id);
+    void debit(Long accountId, Double amount, String description);
+    void credit(Long accountId, Double amount, String description);
+    void transfer(Long accountIdSource, Long accountIdDestination, Double amount);
 
+    List<CompteBancaire> listCompteBancaire();
 }
