@@ -1,5 +1,6 @@
 package com.example.taf;
 
+import com.example.taf.dto.ClientDTO;
 import com.example.taf.entities.Client;
 import com.example.taf.entities.CompteBancaire;
 import com.example.taf.services.CompteBancaireServiceRepo;
@@ -22,14 +23,14 @@ public class TafApplication {
     CommandLineRunner commandLineRunner(CompteBancaireServiceRepo compteBancaireServicerepo) {
         return args -> {
             Stream.of("othman", "zakaria", "su").forEach(name -> {
-                Client client = new Client();
+                ClientDTO client = new ClientDTO();
                 client.setNom(name);
                 client.setEmail(name + "@gmail.com");
                 compteBancaireServicerepo.saveClient(client);
             });
 
-            List<Client> clients = compteBancaireServicerepo.listClients();
-            for (Client client : clients) {
+            List<ClientDTO> clients = compteBancaireServicerepo.listClients();
+            for (ClientDTO client : clients) {
                 CompteBancaire courant = compteBancaireServicerepo.saveCourantCompteBancaire(Math.random() * 9000, 800, client.getId());
                 CompteBancaire epargne = compteBancaireServicerepo.saveEpargneCompteBancaire(Math.random() * 120000, 5.5, client.getId());
 

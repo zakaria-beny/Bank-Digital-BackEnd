@@ -27,7 +27,8 @@ public class CompteBancaire {
     private StatCompte statut;
     private  String devise;
 
-    @OneToMany(mappedBy = "compteBancaire",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "compteBancaire",fetch = FetchType.EAGER, cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<Operation> operations = new ArrayList<>();
 
     @ManyToOne

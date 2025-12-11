@@ -16,5 +16,4 @@ public class CompteCourant extends CompteBancaire {
     private double decouvert;
 
 
-
 }

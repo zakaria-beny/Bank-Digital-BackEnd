@@ -1,9 +1,11 @@
 package com.example.taf.services;
 
+import com.example.taf.dto.ClientDTO;
 import com.example.taf.entities.*;
 import com.example.taf.exceptions.ClientNotFoundExceptions;
 import com.example.taf.exceptions.CompteBancaireNotFoundExceptions;
 import com.example.taf.exceptions.SoldNoSufficientExceptions;
+import com.example.taf.mappers.CompteBancaireMapperImp;
 import com.example.taf.repository.ClientRepo;
 import com.example.taf.repository.CompteBancaireRepo;
 import com.example.taf.repository.OperationRepo;
@@ -13,19 +15,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @AllArgsConstructor
 public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
 
-    private final CompteBancaireRepo compteBancaireRepo;
-    private final ClientRepo clientRepo;
-    private final OperationRepo operationRepo;
+    private  CompteBancaireRepo compteBancaireRepo;
+    private  ClientRepo clientRepo;
+    private  OperationRepo operationRepo;
+    private CompteBancaireMapperImp dtoMapper;
 
     @Override
-    public Client saveClient(Client client) {
-        return clientRepo.save(client);
+    public ClientDTO saveClient(ClientDTO clientDTO) {
+        Client savedClient= dtoMapper.fromClientDTO(clientDTO);
+        Client client=clientRepo.save(savedClient);
+        return dtoMapper.fromClient(client);
     }
 
     @Override
@@ -57,8 +63,12 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
     }
 
     @Override
-    public List<Client> listClients() {
-        return clientRepo.findAll();
+    public List<ClientDTO> listClients() {
+         List<Client> clients =clientRepo.findAll();
+         List<ClientDTO>  clientDTOS= clients.stream()
+                 .map(client -> dtoMapper.fromClient(client))
+                 .collect(Collectors.toList());
+return clientDTOS;
     }
 
     @Override
@@ -109,4 +119,24 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
     public List<CompteBancaire> listCompteBancaire() {
         return compteBancaireRepo.findAll();
     }
+    @Override
+    public ClientDTO getClient(Long clientId) {
+        Client client= clientRepo.findById(clientId).orElseThrow(
+                () -> new ClientNotFoundExceptions("Client not found"));
+        return dtoMapper.fromClient(client);
+
+    }
+
+    @Override
+    public ClientDTO UpdateClient(ClientDTO clientDTO) {
+        Client savedClient= dtoMapper.fromClientDTO(clientDTO);
+        Client client=clientRepo.save(savedClient);
+        return dtoMapper.fromClient(client);
+    }
+    @Override
+    public void deleteClient(Long clientId) {
+clientRepo.deleteById(clientId);
+    }
+
 }
+

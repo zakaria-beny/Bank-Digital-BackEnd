@@ -1,5 +1,6 @@
 package com.example.taf.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +17,10 @@ public class Client {
     private String nom;
     private String email;
 
-    @OneToMany(mappedBy = "client",fetch=FetchType.EAGER)
+    @OneToMany(mappedBy = "client",fetch=FetchType.EAGER, cascade = CascadeType.ALL,
+            orphanRemoval = true)
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<CompteBancaire> comptes = new ArrayList<>();
 
 
