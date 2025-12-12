@@ -11,6 +11,4 @@ public class ClientDTO {
     private String email;
 
 
-
-
 }

@@ -1,6 +1,9 @@
 package com.example.taf;
 
 import com.example.taf.dto.ClientDTO;
+import com.example.taf.dto.CompteBancaireDTO;
+import com.example.taf.dto.CompteCourantDTO;
+import com.example.taf.dto.CompteEpargneDTO;
 import com.example.taf.entities.Client;
 import com.example.taf.entities.CompteBancaire;
 import com.example.taf.services.CompteBancaireServiceRepo;
@@ -31,13 +34,17 @@ public class TafApplication {
 
             List<ClientDTO> clients = compteBancaireServicerepo.listClients();
             for (ClientDTO client : clients) {
-                CompteBancaire courant = compteBancaireServicerepo.saveCourantCompteBancaire(Math.random() * 9000, 800, client.getId());
-                CompteBancaire epargne = compteBancaireServicerepo.saveEpargneCompteBancaire(Math.random() * 120000, 5.5, client.getId());
+                CompteCourantDTO courant = compteBancaireServicerepo.saveCourantCompteBancaire(Math.random() * 9000, 800, client.getId());
+                CompteEpargneDTO epargne = compteBancaireServicerepo.saveEpargneCompteBancaire(Math.random() * 120000, 5.5, client.getId());
+
+                List<CompteBancaireDTO> comptebancaires = compteBancaireServicerepo.listCompteBancaire();
+                for (CompteBancaireDTO compteBancaireDTO : comptebancaires) {
+                    for (int i = 0; i < 10; i++) {
+                        compteBancaireServicerepo.credit(courant.getId(), 1000.0, "Initial credit");
+                        compteBancaireServicerepo.debit(epargne.getId(), 400.0, "Initial debit");
+                    }
 
 
-                compteBancaireServicerepo.credit(courant.getId(), 1000.0, "Initial credit");
-                compteBancaireServicerepo.debit(epargne.getId(), 400.0, "Initial debit");
-            }
-        };
-    }
-}
+                }
+            }};}}
+

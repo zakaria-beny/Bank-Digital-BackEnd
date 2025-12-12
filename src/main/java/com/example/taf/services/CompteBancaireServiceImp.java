@@ -1,6 +1,9 @@
 package com.example.taf.services;
 
 import com.example.taf.dto.ClientDTO;
+import com.example.taf.dto.CompteBancaireDTO;
+import com.example.taf.dto.CompteCourantDTO;
+import com.example.taf.dto.CompteEpargneDTO;
 import com.example.taf.entities.*;
 import com.example.taf.exceptions.ClientNotFoundExceptions;
 import com.example.taf.exceptions.CompteBancaireNotFoundExceptions;
@@ -35,7 +38,7 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
     }
 
     @Override
-    public CompteBancaire saveCourantCompteBancaire(double initialsold, double decouvert, Long ClientId) {
+    public CompteCourantDTO saveCourantCompteBancaire(double initialsold, double decouvert, Long ClientId) {
         Client client = clientRepo.findById(ClientId)
                 .orElseThrow(() -> new ClientNotFoundExceptions("Client not found"));
 
@@ -45,11 +48,11 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
         comptecourant.setClient(client);
         comptecourant.setDecouvert(decouvert);
 
-        return compteBancaireRepo.save(comptecourant);
+        return dtoMapper.fromCompteCourant(comptecourant);
     }
 
     @Override
-    public CompteBancaire saveEpargneCompteBancaire(double initialsold, double tauxInteret, Long ClientId) {
+    public CompteEpargneDTO saveEpargneCompteBancaire(double initialsold, double tauxInteret, Long ClientId) {
         Client client = clientRepo.findById(ClientId)
                 .orElseThrow(() -> new ClientNotFoundExceptions("Client not found"));
 
@@ -59,7 +62,7 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
         compteepargne.setClient(client);
         compteepargne.setTauxInteret(tauxInteret);
 
-        return compteBancaireRepo.save(compteepargne);
+        return dtoMapper.fromCompteEpargne(compteepargne);
     }
 
     @Override
@@ -72,14 +75,22 @@ return clientDTOS;
     }
 
     @Override
-    public CompteBancaire getCompteBancaireById(Long id) {
-        return compteBancaireRepo.findById(id)
+    public CompteBancaireDTO getCompteBancaireById(Long id) {
+        CompteBancaire comptebancaire= compteBancaireRepo.findById(id)
                 .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte bancaire not found"));
+    if (comptebancaire instanceof CompteEpargne){
+        CompteEpargne compteEpargne=(CompteEpargne)  comptebancaire;
+        return dtoMapper.fromCompteEpargne(compteEpargne);
+    }else {
+        CompteCourant compteCourant= (CompteCourant) comptebancaire;
+        return dtoMapper.fromCompteCourant(compteCourant) ;  }
+
     }
 
     @Override
     public void debit(Long accountId, Double amount, String Description) {
-        CompteBancaire compteBancaire = getCompteBancaireById(accountId);
+        CompteBancaire compteBancaire= compteBancaireRepo.findById(accountId)
+                .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte bancaire not found"));
         if (compteBancaire.getSolde() < amount)
             throw new SoldNoSufficientExceptions("Insufficient balance");
 
@@ -96,8 +107,8 @@ return clientDTOS;
 
     @Override
     public void credit(Long accountId, Double amount, String Description) {
-        CompteBancaire compteBancaire = getCompteBancaireById(accountId);
-
+        CompteBancaire compteBancaire= compteBancaireRepo.findById(accountId)
+                .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte bancaire not found"));
         Operation operation = new Operation();
         operation.setType(TypeOp.CREDIT);
         operation.setMontant(amount);
@@ -116,8 +127,21 @@ return clientDTOS;
     }
 
     @Override
-    public List<CompteBancaire> listCompteBancaire() {
-        return compteBancaireRepo.findAll();
+    public List<CompteBancaireDTO> listCompteBancaire() {
+        List<CompteBancaire> compteBancaires = compteBancaireRepo.findAll();
+        List<CompteBancaireDTO> compteBancaireDTOs = compteBancaires.stream().map(compteBancaire -> {
+
+                    if (compteBancaire instanceof CompteCourant) {
+                        CompteCourant cmpcourant = (CompteCourant) compteBancaire;
+                        return dtoMapper.fromCompteCourant(cmpcourant);
+                    } else {
+                        CompteEpargne cmpEpargne = (CompteEpargne) compteBancaire;
+                        return dtoMapper.fromCompteEpargne(cmpEpargne);
+                    }
+
+                }
+        ).collect(Collectors.toList());
+        return compteBancaireDTOs;
     }
     @Override
     public ClientDTO getClient(Long clientId) {
