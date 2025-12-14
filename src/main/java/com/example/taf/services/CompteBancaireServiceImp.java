@@ -1,9 +1,6 @@
 package com.example.taf.services;
 
-import com.example.taf.dto.ClientDTO;
-import com.example.taf.dto.CompteBancaireDTO;
-import com.example.taf.dto.CompteCourantDTO;
-import com.example.taf.dto.CompteEpargneDTO;
+import com.example.taf.dto.*;
 import com.example.taf.entities.*;
 import com.example.taf.exceptions.ClientNotFoundExceptions;
 import com.example.taf.exceptions.CompteBancaireNotFoundExceptions;
@@ -47,7 +44,7 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
         comptecourant.setSolde(initialsold);
         comptecourant.setClient(client);
         comptecourant.setDecouvert(decouvert);
-
+compteBancaireRepo.save(comptecourant);
         return dtoMapper.fromCompteCourant(comptecourant);
     }
 
@@ -61,7 +58,7 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
         compteepargne.setSolde(initialsold);
         compteepargne.setClient(client);
         compteepargne.setTauxInteret(tauxInteret);
-
+    compteBancaireRepo.save(compteepargne);
         return dtoMapper.fromCompteEpargne(compteepargne);
     }
 
@@ -161,6 +158,13 @@ return clientDTOS;
     public void deleteClient(Long clientId) {
 clientRepo.deleteById(clientId);
     }
+@Override
+public List<OperationsDTO> CompteHistorique(Long accountId) {
+        List<Operation> operationsHistoriques=operationRepo.findCompteBancaireById(accountId);
+        return  operationsHistoriques.stream().map(operation ->
+             dtoMapper.fromOperation(operation))
+             .collect(Collectors.toList());
 
+    }
 }
 

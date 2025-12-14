@@ -3,10 +3,8 @@ package com.example.taf.mappers;
 import com.example.taf.dto.ClientDTO;
 import com.example.taf.dto.CompteCourantDTO;
 import com.example.taf.dto.CompteEpargneDTO;
-import com.example.taf.entities.Client;
-import com.example.taf.entities.CompteBancaire;
-import com.example.taf.entities.CompteCourant;
-import com.example.taf.entities.CompteEpargne;
+import com.example.taf.dto.OperationsDTO;
+import com.example.taf.entities.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +28,7 @@ public class CompteBancaireMapperImp {
           CompteCourantDTO courantDTO= new CompteCourantDTO();
           BeanUtils.copyProperties(compteCourant,courantDTO);
           courantDTO.setClientdto(fromClient(compteCourant.getClient()));
+          courantDTO.setType(compteCourant.getClass().getSimpleName());
           return courantDTO;
     }
 
@@ -44,6 +43,8 @@ public class CompteBancaireMapperImp {
 CompteEpargneDTO EpargneDTO = new CompteEpargneDTO();
 BeanUtils.copyProperties(compteEpargne,EpargneDTO);
 EpargneDTO.setClientdto(fromClient(compteEpargne.getClient()));
+EpargneDTO.setType(compteEpargne.getClass().getSimpleName());
+
 return EpargneDTO;
     }
     public CompteEpargne fromCompteEpargneDTO(CompteEpargneDTO compteEpargneDTO){
@@ -51,7 +52,20 @@ return EpargneDTO;
         CompteEpargne compteEpargne = new CompteEpargne();
         BeanUtils.copyProperties(compteEpargneDTO,compteEpargne);
         compteEpargne.setClient(fromClientDTO(compteEpargneDTO.getClientdto()));
+
         return compteEpargne;
+    }
+
+    public OperationsDTO fromOperation(Operation operation){
+        OperationsDTO operationsDTO = new OperationsDTO();
+        BeanUtils.copyProperties(operation,operationsDTO);
+        return operationsDTO;
+    }
+
+    public Operation fromOperationDTO(OperationsDTO operationsDTO){
+        Operation operation = new Operation();
+        BeanUtils.copyProperties(operationsDTO,operation);
+        return operation;
     }
 }
 

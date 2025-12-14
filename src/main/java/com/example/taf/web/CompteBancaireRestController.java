@@ -1,6 +1,7 @@
 package com.example.taf.web;
 
 import com.example.taf.dto.CompteBancaireDTO;
+import com.example.taf.dto.OperationsDTO;
 import com.example.taf.services.CompteBancaireServiceRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,5 +24,10 @@ public class CompteBancaireRestController {
     @GetMapping("/accounts")
     public List<CompteBancaireDTO> listCompteBancaires() {
     return compteBancaireServiceRepo.listCompteBancaire();
+    }
+
+    @GetMapping("/accounts/{accountId}/operations")
+    public List<OperationsDTO> getHistorique(@PathVariable Long accountId) {
+        return compteBancaireServiceRepo.CompteHistorique(accountId);
     }
 }

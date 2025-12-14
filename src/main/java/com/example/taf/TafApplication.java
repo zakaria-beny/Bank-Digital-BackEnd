@@ -39,10 +39,10 @@ public class TafApplication {
 
                 List<CompteBancaireDTO> comptebancaires = compteBancaireServicerepo.listCompteBancaire();
                 for (CompteBancaireDTO compteBancaireDTO : comptebancaires) {
-                    for (int i = 0; i < 10; i++) {
+
                         compteBancaireServicerepo.credit(courant.getId(), 1000.0, "Initial credit");
                         compteBancaireServicerepo.debit(epargne.getId(), 400.0, "Initial debit");
-                    }
+
 
 
                 }
