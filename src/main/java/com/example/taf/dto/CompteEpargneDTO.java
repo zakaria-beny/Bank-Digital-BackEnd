@@ -5,20 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+
 @Getter
 @Setter
 public class CompteEpargneDTO extends CompteBancaireDTO {
-
-
-        private Long id;
-        private Date dateCreation ;
-        private double solde;
-        private StatCompte statut;
-        private  String devise;
-
-        private double tauxInteret;
-
-        private ClientDTO clientdto;
-
-
+    private Long id;
+    private Date dateCreation;
+    private StatCompte statut;
+    private String devise;
+    private ClientDTO clientdto;
 }

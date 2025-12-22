@@ -11,7 +11,7 @@ public interface CompteBancaireServiceRepo {
     CompteCourantDTO saveCourantCompteBancaire(double initialSold, double decouvert, Long clientId);
     CompteEpargneDTO saveEpargneCompteBancaire(double initialSold, double tauxInteret, Long clientId);
 
-
+    CompteBancaireDTO createCompte(CompteBancaireDTO compteBancaireDTO);
     CompteBancaireDTO getCompteBancaireById(Long id);
     void debit(Long accountId, Double amount, String description);
     void credit(Long accountId, Double amount, String description);
@@ -28,4 +28,7 @@ public interface CompteBancaireServiceRepo {
     void deleteClient(Long id);
 
     List<OperationsDTO> CompteHistorique(Long accountId);
+
+    List<ClientDTO> searchClient(String motcle);
+    List<CompteBancaireDTO> searchCompteBancaire(String nom);
 }

@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CompteBancaireRepo extends JpaRepository<CompteBancaire, Long>
 {
+    List<CompteBancaire> findByClientNomContainingIgnoreCase(String motcle);
 }

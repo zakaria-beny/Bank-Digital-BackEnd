@@ -7,4 +7,4 @@ import java.util.List;
 
 public interface ClientRepo extends JpaRepository<Client, Long> {
 
-}
+    List<Client> findByNomContainingIgnoreCase(String motcle);}

@@ -166,5 +166,58 @@ public List<OperationsDTO> CompteHistorique(Long accountId) {
              .collect(Collectors.toList());
 
     }
+
+    @Override
+    public List<ClientDTO> searchClient(String motcle) {
+         List<Client> clients=clientRepo.findByNomContainingIgnoreCase(motcle);
+         List<ClientDTO> clientDTOS= clients.stream().map(client->dtoMapper.fromClient(client)).collect(Collectors.toList());
+return clientDTOS;
+    }
+    @Override
+    public CompteBancaireDTO createCompte(CompteBancaireDTO compteBancaireDTO) {
+        if (compteBancaireDTO.getClientId() == null) {
+            throw new IllegalArgumentException("clientId must not be null");
+        }
+        Client client = clientRepo.findById(compteBancaireDTO.getClientId())
+                .orElseThrow(() -> new ClientNotFoundExceptions("Client not found with id: " + compteBancaireDTO.getClientId()));
+
+        CompteBancaire compte;
+        if ("courant".equalsIgnoreCase(compteBancaireDTO.getType())) {
+            CompteCourant compteCourant = new CompteCourant();
+            compteCourant.setDecouvert(compteBancaireDTO.getDecouvert() != null ? compteBancaireDTO.getDecouvert() : 0.0);
+            compte = compteCourant;
+        } else if ("epargne".equalsIgnoreCase(compteBancaireDTO.getType())) {
+            CompteEpargne compteEpargne = new CompteEpargne();
+            compteEpargne.setTauxInteret(compteBancaireDTO.getTauxInteret() != null ? compteBancaireDTO.getTauxInteret() : 0.0);
+            compte = compteEpargne;
+        } else {
+            throw new IllegalArgumentException("Type de compte inconnu : " + compteBancaireDTO.getType());
+        }
+
+        compte.setSolde(compteBancaireDTO.getSolde());
+        compte.setDateCreation(new Date());
+        compte.setClient(client);
+
+        CompteBancaire savedCompte = compteBancaireRepo.save(compte);
+
+        if (savedCompte instanceof CompteCourant) {
+            return dtoMapper.fromCompteCourant((CompteCourant) savedCompte);
+        } else {
+            return dtoMapper.fromCompteEpargne((CompteEpargne) savedCompte);
+        }
+    }
+
+    @Override
+    public List<CompteBancaireDTO> searchCompteBancaire(String motcle) {
+        List<CompteBancaire> comptes = compteBancaireRepo.findByClientNomContainingIgnoreCase(motcle);
+        return comptes.stream().map(compte -> {
+            if (compte instanceof CompteCourant) {
+                return dtoMapper.fromCompteCourant((CompteCourant) compte);
+            } else {
+                return dtoMapper.fromCompteEpargne((CompteEpargne) compte);
+            }
+        }).collect(Collectors.toList());
+    }
+
 }
 
