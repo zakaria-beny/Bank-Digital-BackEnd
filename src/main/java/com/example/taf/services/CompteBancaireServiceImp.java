@@ -35,11 +35,12 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
     }
 
     @Override
-    public CompteCourantDTO saveCourantCompteBancaire(double initialsold, double decouvert, Long ClientId) {
+    public CompteCourantDTO saveCourantCompteBancaire(String numAcc,double initialsold, double decouvert, Long ClientId) {
         Client client = clientRepo.findById(ClientId)
                 .orElseThrow(() -> new ClientNotFoundExceptions("Client not found"));
-
         CompteCourant comptecourant = new CompteCourant();
+        comptecourant.setNumeroCompte(numAcc);
+
         comptecourant.setDateCreation(new Date());
         comptecourant.setSolde(initialsold);
         comptecourant.setClient(client);
@@ -49,11 +50,12 @@ compteBancaireRepo.save(comptecourant);
     }
 
     @Override
-    public CompteEpargneDTO saveEpargneCompteBancaire(double initialsold, double tauxInteret, Long ClientId) {
+    public CompteEpargneDTO saveEpargneCompteBancaire(String numAcc,double initialsold, double tauxInteret, Long ClientId) {
         Client client = clientRepo.findById(ClientId)
                 .orElseThrow(() -> new ClientNotFoundExceptions("Client not found"));
 
         CompteEpargne compteepargne = new CompteEpargne();
+        compteepargne.setNumeroCompte(numAcc);
         compteepargne.setDateCreation(new Date());
         compteepargne.setSolde(initialsold);
         compteepargne.setClient(client);
@@ -124,6 +126,23 @@ return clientDTOS;
     }
 
     @Override
+    public List<CompteBancaireDTO> findByClientId(Long clientId) {
+        List<CompteBancaire> comptes = compteBancaireRepo.findByClientId(clientId);
+
+        List<CompteBancaireDTO> compteBancaireDTOs = comptes.stream().map(compte -> {
+            if (compte instanceof CompteCourant) {
+                CompteCourant cmpcourant = (CompteCourant) compte;
+                return dtoMapper.fromCompteCourant(cmpcourant);
+            } else {
+                CompteEpargne cmpEpargne = (CompteEpargne) compte;
+                return dtoMapper.fromCompteEpargne(cmpEpargne);
+            }
+        }).collect(Collectors.toList());
+
+        return compteBancaireDTOs;
+    }
+
+    @Override
     public List<CompteBancaireDTO> listCompteBancaire() {
         List<CompteBancaire> compteBancaires = compteBancaireRepo.findAll();
         List<CompteBancaireDTO> compteBancaireDTOs = compteBancaires.stream().map(compteBancaire -> {
@@ -173,6 +192,9 @@ public List<OperationsDTO> CompteHistorique(Long accountId) {
          List<ClientDTO> clientDTOS= clients.stream().map(client->dtoMapper.fromClient(client)).collect(Collectors.toList());
 return clientDTOS;
     }
+
+
+
     @Override
     public CompteBancaireDTO createCompte(CompteBancaireDTO compteBancaireDTO) {
         if (compteBancaireDTO.getClientId() == null) {
@@ -182,11 +204,13 @@ return clientDTOS;
                 .orElseThrow(() -> new ClientNotFoundExceptions("Client not found with id: " + compteBancaireDTO.getClientId()));
 
         CompteBancaire compte;
-        if ("courant".equalsIgnoreCase(compteBancaireDTO.getType())) {
+        String type = compteBancaireDTO.getType().toUpperCase();
+
+        if ("COURANT".equals(type)) {
             CompteCourant compteCourant = new CompteCourant();
             compteCourant.setDecouvert(compteBancaireDTO.getDecouvert() != null ? compteBancaireDTO.getDecouvert() : 0.0);
             compte = compteCourant;
-        } else if ("epargne".equalsIgnoreCase(compteBancaireDTO.getType())) {
+        } else if ("EPARGNE".equals(type)) {
             CompteEpargne compteEpargne = new CompteEpargne();
             compteEpargne.setTauxInteret(compteBancaireDTO.getTauxInteret() != null ? compteBancaireDTO.getTauxInteret() : 0.0);
             compte = compteEpargne;
@@ -194,6 +218,7 @@ return clientDTOS;
             throw new IllegalArgumentException("Type de compte inconnu : " + compteBancaireDTO.getType());
         }
 
+        compte.setNumeroCompte(compteBancaireDTO.getNumeroCompte());
         compte.setSolde(compteBancaireDTO.getSolde());
         compte.setDateCreation(new Date());
         compte.setClient(client);
@@ -206,10 +231,39 @@ return clientDTOS;
             return dtoMapper.fromCompteEpargne((CompteEpargne) savedCompte);
         }
     }
+    @Override
+    public CompteBancaireDTO updateCompte(Long compteId, CompteBancaireDTO compteBancaireDTO) {
+        CompteBancaire compte = compteBancaireRepo.findById(compteId)
+                .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte not found"));
+
+        compte.setNumeroCompte(compteBancaireDTO.getNumeroCompte());
+        compte.setSolde(compteBancaireDTO.getSolde());
+
+        CompteBancaire updatedCompte = compteBancaireRepo.save(compte);
+
+        if (updatedCompte instanceof CompteCourant) {
+            return dtoMapper.fromCompteCourant((CompteCourant) updatedCompte);
+        } else {
+            return dtoMapper.fromCompteEpargne((CompteEpargne) updatedCompte);
+        }
+    }
 
     @Override
+    public void deleteCompte(Long accountId) {
+        CompteBancaire compte = compteBancaireRepo.findById(accountId).orElse(null);
+
+        if (compte != null) {
+            if (compte.getClient() != null) {
+                compte.getClient().getComptes().remove(compte);
+                compte.setClient(null);
+            }
+
+            compteBancaireRepo.delete(compte);
+        }
+    }
+    @Override
     public List<CompteBancaireDTO> searchCompteBancaire(String motcle) {
-        List<CompteBancaire> comptes = compteBancaireRepo.findByClientNomContainingIgnoreCase(motcle);
+        List<CompteBancaire> comptes = compteBancaireRepo.findByClient_NomContainingIgnoreCase(motcle);
         return comptes.stream().map(compte -> {
             if (compte instanceof CompteCourant) {
                 return dtoMapper.fromCompteCourant((CompteCourant) compte);

@@ -8,17 +8,18 @@ import java.util.List;
 public interface CompteBancaireServiceRepo {
 
 
-    CompteCourantDTO saveCourantCompteBancaire(double initialSold, double decouvert, Long clientId);
-    CompteEpargneDTO saveEpargneCompteBancaire(double initialSold, double tauxInteret, Long clientId);
 
+    CompteCourantDTO saveCourantCompteBancaire(String numAcc, double solde, double decouvert, Long clientId);
+    CompteEpargneDTO saveEpargneCompteBancaire(String numAcc, double solde, double tauxInteret, Long clientId);
     CompteBancaireDTO createCompte(CompteBancaireDTO compteBancaireDTO);
     CompteBancaireDTO getCompteBancaireById(Long id);
     void debit(Long accountId, Double amount, String description);
     void credit(Long accountId, Double amount, String description);
     void transfer(Long accountIdSource, Long accountIdDestination, Double amount);
-
+    List<CompteBancaireDTO> findByClientId(Long clientId);
     List<CompteBancaireDTO> listCompteBancaire();
-
+    CompteBancaireDTO updateCompte(Long compteId, CompteBancaireDTO compteBancaireDTO);
+    void deleteCompte(Long compteId);
     ClientDTO saveClient(ClientDTO clientDTO);
 
     ClientDTO getClient(Long clientId);

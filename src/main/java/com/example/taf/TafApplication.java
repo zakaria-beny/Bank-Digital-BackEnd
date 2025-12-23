@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @SpringBootApplication
@@ -33,9 +34,11 @@ public class TafApplication {
             });
 
             List<ClientDTO> clients = compteBancaireServicerepo.listClients();
+            String numAccCourant = UUID.randomUUID().toString();
+            String numAccEpargne = UUID.randomUUID().toString();
             for (ClientDTO client : clients) {
-                CompteCourantDTO courant = compteBancaireServicerepo.saveCourantCompteBancaire(Math.random() * 9000, 800, client.getId());
-                CompteEpargneDTO epargne = compteBancaireServicerepo.saveEpargneCompteBancaire(Math.random() * 120000, 5.5, client.getId());
+                CompteCourantDTO courant = compteBancaireServicerepo.saveCourantCompteBancaire(numAccCourant,Math.random() * 9000, 800, client.getId());
+                CompteEpargneDTO epargne = compteBancaireServicerepo.saveEpargneCompteBancaire(numAccEpargne,Math.random() * 120000, 5.5, client.getId());
 
                 List<CompteBancaireDTO> comptebancaires = compteBancaireServicerepo.listCompteBancaire();
                 for (CompteBancaireDTO compteBancaireDTO : comptebancaires) {

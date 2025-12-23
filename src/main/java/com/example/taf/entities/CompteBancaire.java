@@ -23,6 +23,8 @@ public class CompteBancaire {
     private Long id;
     private Date dateCreation ;
     private double solde;
+    private String numeroCompte;
+
     @Enumerated(EnumType.STRING)
     private StatCompte statut;
     private  String devise;

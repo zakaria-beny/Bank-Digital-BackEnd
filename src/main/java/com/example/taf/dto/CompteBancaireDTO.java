@@ -8,5 +8,7 @@ public class CompteBancaireDTO {
     private double solde;
     private Double decouvert;
     private Double tauxInteret;
+    private String numeroCompte;
+
     private Long clientId;
 }

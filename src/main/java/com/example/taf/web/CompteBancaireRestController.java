@@ -14,7 +14,10 @@ import java.util.List;
 public class CompteBancaireRestController {
 
     private CompteBancaireServiceRepo compteBancaireServiceRepo;
-
+    @GetMapping("/clients/{clientId}/comptes")
+    public List<CompteBancaireDTO> getComptesbyClient(@PathVariable Long clientId) {
+       return compteBancaireServiceRepo.findByClientId(clientId);
+    }
     @GetMapping("/accounts/{accountId}")
     public CompteBancaireDTO getCompteBancaire(@PathVariable Long accountId) {
         return compteBancaireServiceRepo.getCompteBancaireById(accountId);
@@ -23,6 +26,16 @@ public class CompteBancaireRestController {
     @GetMapping("/accounts")
     public List<CompteBancaireDTO> listCompteBancaires() {
         return compteBancaireServiceRepo.listCompteBancaire();
+    }
+    @PutMapping("/accounts/{accountId}")
+    public CompteBancaireDTO updateCompte(@PathVariable Long accountId,
+                                          @RequestBody CompteBancaireDTO dto) {
+        return compteBancaireServiceRepo.updateCompte(accountId, dto);
+    }
+
+    @DeleteMapping("/accounts/{accountId}")
+    public void deleteCompte(@PathVariable Long accountId) {
+        compteBancaireServiceRepo.deleteCompte(accountId);
     }
 
     @GetMapping("/accounts/{accountId}/operations")
