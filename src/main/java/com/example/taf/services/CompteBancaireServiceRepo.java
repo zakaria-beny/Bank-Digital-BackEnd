@@ -9,8 +9,8 @@ public interface CompteBancaireServiceRepo {
 
 
 
-    CompteCourantDTO saveCourantCompteBancaire(String numAcc, double solde, double decouvert, Long clientId);
-    CompteEpargneDTO saveEpargneCompteBancaire(String numAcc, double solde, double tauxInteret, Long clientId);
+    CompteCourantDTO saveCourantCompteBancaire(String numAcc, double initialsold, double decouvert, Long ClientId, String devise);
+    CompteEpargneDTO saveEpargneCompteBancaire(String numAcc, double initialsold, double tauxInteret, Long ClientId, String devise);
     CompteBancaireDTO createCompte(CompteBancaireDTO compteBancaireDTO);
     CompteBancaireDTO getCompteBancaireById(Long id);
     void debit(Long accountId, Double amount, String description);

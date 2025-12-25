@@ -9,9 +9,5 @@ import java.util.Date;
 @Getter
 @Setter
 public class CompteEpargneDTO extends CompteBancaireDTO {
-    private Long id;
-    private Date dateCreation;
-    private StatCompte statut;
-    private String devise;
-    private ClientDTO clientdto;
+
 }

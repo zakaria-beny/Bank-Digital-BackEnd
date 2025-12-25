@@ -1,5 +1,5 @@
 package com.example.taf.web;
-
+import java.util.Map;
 import com.example.taf.dto.CompteBancaireDTO;
 import com.example.taf.dto.OperationsDTO;
 import com.example.taf.services.CompteBancaireServiceRepo;
@@ -51,5 +51,25 @@ public class CompteBancaireRestController {
     @GetMapping("/accounts/search")
     public List<CompteBancaireDTO> search(@RequestParam String motcle) {
         return compteBancaireServiceRepo.searchCompteBancaire(motcle);
+    }
+    @PostMapping("/accounts/{accountId}/credit")
+    public void credit(@PathVariable Long accountId, @RequestBody Map<String, Object> request) {
+        Double montant = ((Number) request.get("montant")).doubleValue();
+        String description = (String) request.getOrDefault("description", "");
+        compteBancaireServiceRepo.credit(accountId, montant, description);
+    }
+
+    @PostMapping("/accounts/{accountId}/debit")
+    public void debit(@PathVariable Long accountId, @RequestBody Map<String, Object> request) {
+        Double montant = ((Number) request.get("montant")).doubleValue();
+        String description = (String) request.getOrDefault("description", "");
+        compteBancaireServiceRepo.debit(accountId, montant, description);
+    }
+
+    @PostMapping("/accounts/{accountId}/transfer")
+    public void transfer(@PathVariable Long accountId, @RequestBody Map<String, Object> request) {
+        Long compteDestination = ((Number) request.get("compteDestination")).longValue();
+        Double montant = ((Number) request.get("montant")).doubleValue();
+        compteBancaireServiceRepo.transfer(accountId, compteDestination, montant);
     }
 }

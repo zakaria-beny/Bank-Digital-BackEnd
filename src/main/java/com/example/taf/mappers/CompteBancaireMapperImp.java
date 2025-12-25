@@ -12,8 +12,12 @@ import org.springframework.stereotype.Service;
 public class CompteBancaireMapperImp {
 
     public ClientDTO fromClient(Client client){
+        if (client == null) {
+        return null;
+    }
         ClientDTO clientDTO = new ClientDTO();
        BeanUtils.copyProperties(client,clientDTO);
+
         return clientDTO;
     }
 
@@ -29,6 +33,7 @@ public class CompteBancaireMapperImp {
           BeanUtils.copyProperties(compteCourant,courantDTO);
           courantDTO.setClientdto(fromClient(compteCourant.getClient()));
           courantDTO.setType(compteCourant.getClass().getSimpleName());
+          courantDTO.setDevise(compteCourant.getDevise());
           return courantDTO;
     }
 
@@ -36,6 +41,7 @@ public class CompteBancaireMapperImp {
      CompteCourant compteCourant = new CompteCourant();
      BeanUtils.copyProperties(compteCourantDTO,compteCourant);
      compteCourant.setClient(fromClientDTO(compteCourantDTO.getClientdto()));
+        compteCourant.setDevise(compteCourantDTO.getDevise());
      return compteCourant;
     }
 
@@ -44,6 +50,7 @@ CompteEpargneDTO EpargneDTO = new CompteEpargneDTO();
 BeanUtils.copyProperties(compteEpargne,EpargneDTO);
 EpargneDTO.setClientdto(fromClient(compteEpargne.getClient()));
 EpargneDTO.setType(compteEpargne.getClass().getSimpleName());
+        EpargneDTO.setDevise(compteEpargne.getDevise());
 
 return EpargneDTO;
     }
@@ -52,7 +59,7 @@ return EpargneDTO;
         CompteEpargne compteEpargne = new CompteEpargne();
         BeanUtils.copyProperties(compteEpargneDTO,compteEpargne);
         compteEpargne.setClient(fromClientDTO(compteEpargneDTO.getClientdto()));
-
+        compteEpargne.setDevise(compteEpargneDTO.getDevise());
         return compteEpargne;
     }
 
@@ -67,5 +74,7 @@ return EpargneDTO;
         BeanUtils.copyProperties(operationsDTO,operation);
         return operation;
     }
+
+
 }
 

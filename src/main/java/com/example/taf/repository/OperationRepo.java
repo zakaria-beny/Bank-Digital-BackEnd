@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface OperationRepo extends JpaRepository<Operation, Long> {
-    List<Operation> findCompteBancaireById(Long accountId);
+    List<Operation> findByCompteBancaireId(Long accountId);
 }

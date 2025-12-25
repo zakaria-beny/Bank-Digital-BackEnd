@@ -35,7 +35,7 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
     }
 
     @Override
-    public CompteCourantDTO saveCourantCompteBancaire(String numAcc,double initialsold, double decouvert, Long ClientId) {
+    public CompteCourantDTO saveCourantCompteBancaire(String numAcc,double initialsold, double decouvert, Long ClientId,String devise) {
         Client client = clientRepo.findById(ClientId)
                 .orElseThrow(() -> new ClientNotFoundExceptions("Client not found"));
         CompteCourant comptecourant = new CompteCourant();
@@ -45,12 +45,13 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
         comptecourant.setSolde(initialsold);
         comptecourant.setClient(client);
         comptecourant.setDecouvert(decouvert);
+        comptecourant.setDevise((devise != null && !devise.isEmpty()) ? devise : "MAD");
 compteBancaireRepo.save(comptecourant);
         return dtoMapper.fromCompteCourant(comptecourant);
     }
 
     @Override
-    public CompteEpargneDTO saveEpargneCompteBancaire(String numAcc,double initialsold, double tauxInteret, Long ClientId) {
+    public CompteEpargneDTO saveEpargneCompteBancaire(String numAcc,double initialsold, double tauxInteret, Long ClientId,String devise) {
         Client client = clientRepo.findById(ClientId)
                 .orElseThrow(() -> new ClientNotFoundExceptions("Client not found"));
 
@@ -60,6 +61,7 @@ compteBancaireRepo.save(comptecourant);
         compteepargne.setSolde(initialsold);
         compteepargne.setClient(client);
         compteepargne.setTauxInteret(tauxInteret);
+        compteepargne.setDevise((devise != null && !devise.isEmpty()) ? devise : "MAD");
     compteBancaireRepo.save(compteepargne);
         return dtoMapper.fromCompteEpargne(compteepargne);
     }
@@ -179,7 +181,7 @@ clientRepo.deleteById(clientId);
     }
 @Override
 public List<OperationsDTO> CompteHistorique(Long accountId) {
-        List<Operation> operationsHistoriques=operationRepo.findCompteBancaireById(accountId);
+        List<Operation> operationsHistoriques=operationRepo.findByCompteBancaireId(accountId);
         return  operationsHistoriques.stream().map(operation ->
              dtoMapper.fromOperation(operation))
              .collect(Collectors.toList());
@@ -217,12 +219,24 @@ return clientDTOS;
         } else {
             throw new IllegalArgumentException("Type de compte inconnu : " + compteBancaireDTO.getType());
         }
+        if (compteBancaireDTO.getNumeroCompte() == null || compteBancaireDTO.getNumeroCompte().isEmpty()) {
+            compte.setNumeroCompte(java.util.UUID.randomUUID().toString());
+        } else {
+            compte.setNumeroCompte(compteBancaireDTO.getNumeroCompte());
+        }
 
-        compte.setNumeroCompte(compteBancaireDTO.getNumeroCompte());
         compte.setSolde(compteBancaireDTO.getSolde());
         compte.setDateCreation(new Date());
         compte.setClient(client);
+        compte.setStatut(StatCompte.CREATED);
+        compte.setDevise(compteBancaireDTO.getDevise());
 
+
+        if (compteBancaireDTO.getDevise() != null && !compteBancaireDTO.getDevise().isEmpty()) {
+            compte.setDevise(compteBancaireDTO.getDevise());
+        } else {
+            compte.setDevise("MAD");
+        }
         CompteBancaire savedCompte = compteBancaireRepo.save(compte);
 
         if (savedCompte instanceof CompteCourant) {
@@ -236,8 +250,20 @@ return clientDTOS;
         CompteBancaire compte = compteBancaireRepo.findById(compteId)
                 .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte not found"));
 
-        compte.setNumeroCompte(compteBancaireDTO.getNumeroCompte());
+        if (compteBancaireDTO.getNumeroCompte() != null && !compteBancaireDTO.getNumeroCompte().isEmpty()) {
+            compte.setNumeroCompte(compteBancaireDTO.getNumeroCompte());
+        }
         compte.setSolde(compteBancaireDTO.getSolde());
+
+
+        if (compteBancaireDTO.getStatut() != null) {
+            compte.setStatut(compteBancaireDTO.getStatut());
+        }
+
+
+        if (compteBancaireDTO.getDevise() != null && !compteBancaireDTO.getDevise().isEmpty()) {
+            compte.setDevise(compteBancaireDTO.getDevise());
+        }
 
         CompteBancaire updatedCompte = compteBancaireRepo.save(compte);
 

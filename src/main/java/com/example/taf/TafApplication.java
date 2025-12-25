@@ -1,11 +1,8 @@
 package com.example.taf;
 
 import com.example.taf.dto.ClientDTO;
-import com.example.taf.dto.CompteBancaireDTO;
 import com.example.taf.dto.CompteCourantDTO;
 import com.example.taf.dto.CompteEpargneDTO;
-import com.example.taf.entities.Client;
-import com.example.taf.entities.CompteBancaire;
 import com.example.taf.services.CompteBancaireServiceRepo;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,28 +23,39 @@ public class TafApplication {
     @Bean
     CommandLineRunner commandLineRunner(CompteBancaireServiceRepo compteBancaireServicerepo) {
         return args -> {
-            Stream.of("othman", "zakaria", "su").forEach(name -> {
+            Stream.of("othman").forEach(name -> {
                 ClientDTO client = new ClientDTO();
                 client.setNom(name);
                 client.setEmail(name + "@gmail.com");
                 compteBancaireServicerepo.saveClient(client);
             });
 
+
             List<ClientDTO> clients = compteBancaireServicerepo.listClients();
-            String numAccCourant = UUID.randomUUID().toString();
-            String numAccEpargne = UUID.randomUUID().toString();
+
             for (ClientDTO client : clients) {
-                CompteCourantDTO courant = compteBancaireServicerepo.saveCourantCompteBancaire(numAccCourant,Math.random() * 9000, 800, client.getId());
-                CompteEpargneDTO epargne = compteBancaireServicerepo.saveEpargneCompteBancaire(numAccEpargne,Math.random() * 120000, 5.5, client.getId());
+                String numAccCourant = UUID.randomUUID().toString();
+                String numAccEpargne = UUID.randomUUID().toString();
 
-                List<CompteBancaireDTO> comptebancaires = compteBancaireServicerepo.listCompteBancaire();
-                for (CompteBancaireDTO compteBancaireDTO : comptebancaires) {
+                CompteCourantDTO courant = compteBancaireServicerepo.saveCourantCompteBancaire(
+                        numAccCourant,
+                        Math.random() * 9000,
+                        800,
+                        client.getId(),
+                        "EUR"
+                );
 
-                        compteBancaireServicerepo.credit(courant.getId(), 1000.0, "Initial credit");
-                        compteBancaireServicerepo.debit(epargne.getId(), 400.0, "Initial debit");
+                CompteEpargneDTO epargne = compteBancaireServicerepo.saveEpargneCompteBancaire(
+                        numAccEpargne,
+                        Math.random() * 120000,
+                        5.5,
+                        client.getId(),
+                        "EUR"
+                );
 
-
-
-                }
-            }};}}
-
+                compteBancaireServicerepo.credit(courant.getId(), 1000.0, "Initial credit");
+                compteBancaireServicerepo.debit(epargne.getId(), 400.0, "Initial debit");
+            }
+        };
+    }
+}
