@@ -1,8 +1,10 @@
 package com.example.taf.web;
 
 import com.example.taf.dto.ClientDTO;
+import com.example.taf.dto.DashboardStat;
 import com.example.taf.entities.Client;
 import com.example.taf.services.CompteBancaireServiceRepo;
+import com.example.taf.services.DashboardService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.service.annotation.GetExchange;
@@ -39,6 +41,7 @@ public class ClientRestController {
         return compteBancaireServiceRepo.UpdateClient(clientDTO);
 
     }
+
     @DeleteMapping("/clients/{id}")
     public void deleteClient(@PathVariable Long id) {
         compteBancaireServiceRepo.deleteClient(id);
