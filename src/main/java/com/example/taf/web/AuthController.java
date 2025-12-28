@@ -9,10 +9,9 @@ import lombok.AllArgsConstructor;
 
 import java.util.Map;
 
-@RestController
+@RestController("profileAuthController")
 @AllArgsConstructor
 @CrossOrigin("*")
-@RestController("profileAuthController")
 public class AuthController {
 
     private final AuthService authService;
