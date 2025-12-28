@@ -20,7 +20,7 @@ public class TafApplication {
         SpringApplication.run(TafApplication.class, args);
     }
 
-    @Bean
+  //  @Bean
     CommandLineRunner commandLineRunner(CompteBancaireServiceRepo compteBancaireServicerepo) {
         return args -> {
             Stream.of("othman").forEach(name -> {
