@@ -9,26 +9,26 @@ public interface CompteBancaireServiceRepo {
 
 
 
-    CompteCourantDTO saveCourantCompteBancaire(String numAcc, double initialsold, double decouvert, Long ClientId, String devise);
-    CompteEpargneDTO saveEpargneCompteBancaire(String numAcc, double initialsold, double tauxInteret, Long ClientId, String devise);
+    CompteCourantDTO saveCourantCompteBancaire(String numAcc, double initialsold, double decouvert, String ClientId, String devise);
+    CompteEpargneDTO saveEpargneCompteBancaire(String numAcc, double initialsold, double tauxInteret, String ClientId, String devise);
     CompteBancaireDTO createCompte(CompteBancaireDTO compteBancaireDTO);
-    CompteBancaireDTO getCompteBancaireById(Long id);
-    void debit(Long accountId, Double amount, String description);
-    void credit(Long accountId, Double amount, String description);
-    void transfer(Long accountIdSource, Long accountIdDestination, Double amount);
-    List<CompteBancaireDTO> findByClientId(Long clientId);
+    CompteBancaireDTO getCompteBancaireById(String id);
+    void debit(String accountId, Double amount, String description);
+    void credit(String accountId, Double amount, String description);
+    void transfer(String accountIdSource, String accountIdDestination, Double amount);
+    List<CompteBancaireDTO> findByClientId(String clientId);
     List<CompteBancaireDTO> listCompteBancaire();
-    CompteBancaireDTO updateCompte(Long compteId, CompteBancaireDTO compteBancaireDTO);
-    void deleteCompte(Long compteId);
+    CompteBancaireDTO updateCompte(String compteId, CompteBancaireDTO compteBancaireDTO);
+    void deleteCompte(String compteId);
     ClientDTO saveClient(ClientDTO clientDTO);
 
-    ClientDTO getClient(Long clientId);
+    ClientDTO getClient(String clientId);
     List<ClientDTO> listClients();
     ClientDTO UpdateClient(ClientDTO clientDTO);
 
-    void deleteClient(Long id);
+    void deleteClient(String id);
 
-    List<OperationsDTO> CompteHistorique(Long accountId);
+    List<OperationsDTO> CompteHistorique(String accountId);
 
     List<ClientDTO> searchClient(String motcle);
     List<CompteBancaireDTO> searchCompteBancaire(String nom);

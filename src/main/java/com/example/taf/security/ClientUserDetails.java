@@ -22,7 +22,6 @@ public class ClientUserDetails implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        // FIX: Add "ROLE_" prefix here so Spring Security recognizes it
         String roleName = user.getRole().startsWith("ROLE_") ? user.getRole() : "ROLE_" + user.getRole();
 
         return new org.springframework.security.core.userdetails.User(

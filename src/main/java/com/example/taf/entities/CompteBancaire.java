@@ -6,6 +6,7 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -18,9 +19,8 @@ import java.util.List;
 @DiscriminatorColumn(name = "type")
 public class CompteBancaire {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-    private Long id;
+    @Column(length = 36, nullable = false, updatable = false)
+    private String id;
     private Date dateCreation ;
     private double solde;
     private String numeroCompte;
@@ -36,5 +36,12 @@ public class CompteBancaire {
     @ManyToOne
 
     private Client client;
+
+    @PrePersist
+    public void ensureId() {
+        if (this.id == null || this.id.isBlank()) {
+            this.id = UUID.randomUUID().toString();
+        }
+    }
 
 }

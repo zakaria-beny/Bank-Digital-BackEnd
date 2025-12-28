@@ -15,11 +15,11 @@ public class CompteBancaireRestController {
 
     private CompteBancaireServiceRepo compteBancaireServiceRepo;
     @GetMapping("/clients/{clientId}/comptes")
-    public List<CompteBancaireDTO> getComptesbyClient(@PathVariable Long clientId) {
+    public List<CompteBancaireDTO> getComptesbyClient(@PathVariable String clientId) {
        return compteBancaireServiceRepo.findByClientId(clientId);
     }
     @GetMapping("/accounts/{accountId}")
-    public CompteBancaireDTO getCompteBancaire(@PathVariable Long accountId) {
+    public CompteBancaireDTO getCompteBancaire(@PathVariable String accountId) {
         return compteBancaireServiceRepo.getCompteBancaireById(accountId);
     }
 
@@ -28,18 +28,18 @@ public class CompteBancaireRestController {
         return compteBancaireServiceRepo.listCompteBancaire();
     }
     @PutMapping("/accounts/{accountId}")
-    public CompteBancaireDTO updateCompte(@PathVariable Long accountId,
+    public CompteBancaireDTO updateCompte(@PathVariable String accountId,
                                           @RequestBody CompteBancaireDTO dto) {
         return compteBancaireServiceRepo.updateCompte(accountId, dto);
     }
 
     @DeleteMapping("/accounts/{accountId}")
-    public void deleteCompte(@PathVariable Long accountId) {
+    public void deleteCompte(@PathVariable String accountId) {
         compteBancaireServiceRepo.deleteCompte(accountId);
     }
 
     @GetMapping("/accounts/{accountId}/operations")
-    public List<OperationsDTO> getHistorique(@PathVariable Long accountId) {
+    public List<OperationsDTO> getHistorique(@PathVariable String accountId) {
         return compteBancaireServiceRepo.CompteHistorique(accountId);
     }
 
@@ -53,22 +53,22 @@ public class CompteBancaireRestController {
         return compteBancaireServiceRepo.searchCompteBancaire(motcle);
     }
     @PostMapping("/accounts/{accountId}/credit")
-    public void credit(@PathVariable Long accountId, @RequestBody Map<String, Object> request) {
+    public void credit(@PathVariable String accountId, @RequestBody Map<String, Object> request) {
         Double montant = ((Number) request.get("montant")).doubleValue();
         String description = (String) request.getOrDefault("description", "");
         compteBancaireServiceRepo.credit(accountId, montant, description);
     }
 
     @PostMapping("/accounts/{accountId}/debit")
-    public void debit(@PathVariable Long accountId, @RequestBody Map<String, Object> request) {
+    public void debit(@PathVariable String accountId, @RequestBody Map<String, Object> request) {
         Double montant = ((Number) request.get("montant")).doubleValue();
         String description = (String) request.getOrDefault("description", "");
         compteBancaireServiceRepo.debit(accountId, montant, description);
     }
 
     @PostMapping("/accounts/{accountId}/transfer")
-    public void transfer(@PathVariable Long accountId, @RequestBody Map<String, Object> request) {
-        Long compteDestination = ((Number) request.get("compteDestination")).longValue();
+    public void transfer(@PathVariable String accountId, @RequestBody Map<String, Object> request) {
+        String compteDestination = (String) request.get("compteDestination");
         Double montant = ((Number) request.get("montant")).doubleValue();
         compteBancaireServiceRepo.transfer(accountId, compteDestination, montant);
     }

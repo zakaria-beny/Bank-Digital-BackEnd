@@ -9,6 +9,7 @@ import com.example.taf.mappers.CompteBancaireMapperImp;
 import com.example.taf.repository.ClientRepo;
 import com.example.taf.repository.CompteBancaireRepo;
 import com.example.taf.repository.OperationRepo;
+import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
     private  ClientRepo clientRepo;
     private  OperationRepo operationRepo;
     private CompteBancaireMapperImp dtoMapper;
+    private EntityManager entityManager;
 
     @Override
     public ClientDTO saveClient(ClientDTO clientDTO) {
@@ -35,7 +37,7 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
     }
 
     @Override
-    public CompteCourantDTO saveCourantCompteBancaire(String numAcc,double initialsold, double decouvert, Long ClientId,String devise) {
+    public CompteCourantDTO saveCourantCompteBancaire(String numAcc,double initialsold, double decouvert, String ClientId,String devise) {
         Client client = clientRepo.findById(ClientId)
                 .orElseThrow(() -> new ClientNotFoundExceptions("Client not found"));
         CompteCourant comptecourant = new CompteCourant();
@@ -46,12 +48,12 @@ public class CompteBancaireServiceImp implements CompteBancaireServiceRepo {
         comptecourant.setClient(client);
         comptecourant.setDecouvert(decouvert);
         comptecourant.setDevise((devise != null && !devise.isEmpty()) ? devise : "MAD");
-compteBancaireRepo.save(comptecourant);
+        compteBancaireRepo.save(comptecourant);
         return dtoMapper.fromCompteCourant(comptecourant);
     }
 
     @Override
-    public CompteEpargneDTO saveEpargneCompteBancaire(String numAcc,double initialsold, double tauxInteret, Long ClientId,String devise) {
+    public CompteEpargneDTO saveEpargneCompteBancaire(String numAcc,double initialsold, double tauxInteret, String ClientId,String devise) {
         Client client = clientRepo.findById(ClientId)
                 .orElseThrow(() -> new ClientNotFoundExceptions("Client not found"));
 
@@ -62,36 +64,39 @@ compteBancaireRepo.save(comptecourant);
         compteepargne.setClient(client);
         compteepargne.setTauxInteret(tauxInteret);
         compteepargne.setDevise((devise != null && !devise.isEmpty()) ? devise : "MAD");
-    compteBancaireRepo.save(compteepargne);
+        compteBancaireRepo.save(compteepargne);
         return dtoMapper.fromCompteEpargne(compteepargne);
     }
 
     @Override
     public List<ClientDTO> listClients() {
-         List<Client> clients =clientRepo.findAll();
-         List<ClientDTO>  clientDTOS= clients.stream()
-                 .map(client -> dtoMapper.fromClient(client))
-                 .collect(Collectors.toList());
-return clientDTOS;
+        List<Client> clients =clientRepo.findAll();
+        List<ClientDTO>  clientDTOS= clients.stream()
+                .map(client -> dtoMapper.fromClient(client))
+                .collect(Collectors.toList());
+        return clientDTOS;
     }
 
     @Override
-    public CompteBancaireDTO getCompteBancaireById(Long id) {
+    public CompteBancaireDTO getCompteBancaireById(String id) {
         CompteBancaire comptebancaire= compteBancaireRepo.findById(id)
                 .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte bancaire not found"));
-    if (comptebancaire instanceof CompteEpargne){
-        CompteEpargne compteEpargne=(CompteEpargne)  comptebancaire;
-        return dtoMapper.fromCompteEpargne(compteEpargne);
-    }else {
-        CompteCourant compteCourant= (CompteCourant) comptebancaire;
-        return dtoMapper.fromCompteCourant(compteCourant) ;  }
+        if (comptebancaire instanceof CompteEpargne){
+            CompteEpargne compteEpargne=(CompteEpargne)  comptebancaire;
+            return dtoMapper.fromCompteEpargne(compteEpargne);
+        }else {
+            CompteCourant compteCourant= (CompteCourant) comptebancaire;
+            return dtoMapper.fromCompteCourant(compteCourant) ;  }
 
     }
 
     @Override
-    public void debit(Long accountId, Double amount, String Description) {
+    public void debit(String accountId, Double amount, String Description) {
         CompteBancaire compteBancaire= compteBancaireRepo.findById(accountId)
                 .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte bancaire not found"));
+        if (compteBancaire.getStatut() == StatCompte.SUSPENDED) {
+            throw new IllegalStateException("Cannot perform operations on a suspended account");
+        }
         if (compteBancaire.getSolde() < amount)
             throw new SoldNoSufficientExceptions("Insufficient balance");
 
@@ -107,9 +112,12 @@ return clientDTOS;
     }
 
     @Override
-    public void credit(Long accountId, Double amount, String Description) {
+    public void credit(String accountId, Double amount, String Description) {
         CompteBancaire compteBancaire= compteBancaireRepo.findById(accountId)
                 .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte bancaire not found"));
+        if (compteBancaire.getStatut() == StatCompte.SUSPENDED) {
+            throw new IllegalStateException("Cannot perform operations on a suspended account");
+        }
         Operation operation = new Operation();
         operation.setType(TypeOp.CREDIT);
         operation.setMontant(amount);
@@ -122,13 +130,23 @@ return clientDTOS;
     }
 
     @Override
-    public void transfer(Long accountIdSource, Long accountIdDestination, Double amount) {
+    public void transfer(String accountIdSource, String accountIdDestination, Double amount) {
+        CompteBancaire source = compteBancaireRepo.findById(accountIdSource)
+                .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte bancaire not found"));
+        if (source.getStatut() == StatCompte.SUSPENDED) {
+            throw new IllegalStateException("Cannot perform operations on a suspended account");
+        }
+        CompteBancaire destination = compteBancaireRepo.findById(accountIdDestination)
+                .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte bancaire not found"));
+        if (destination.getStatut() == StatCompte.SUSPENDED) {
+            throw new IllegalStateException("Cannot transfer to a suspended account");
+        }
         debit(accountIdSource, amount, "Transfer to " + accountIdDestination);
         credit(accountIdDestination, amount, "Transfer from " + accountIdSource);
     }
 
     @Override
-    public List<CompteBancaireDTO> findByClientId(Long clientId) {
+    public List<CompteBancaireDTO> findByClientId(String clientId) {
         List<CompteBancaire> comptes = compteBancaireRepo.findByClientId(clientId);
 
         List<CompteBancaireDTO> compteBancaireDTOs = comptes.stream().map(compte -> {
@@ -162,7 +180,7 @@ return clientDTOS;
         return compteBancaireDTOs;
     }
     @Override
-    public ClientDTO getClient(Long clientId) {
+    public ClientDTO getClient(String clientId) {
         Client client= clientRepo.findById(clientId).orElseThrow(
                 () -> new ClientNotFoundExceptions("Client not found"));
         return dtoMapper.fromClient(client);
@@ -176,23 +194,23 @@ return clientDTOS;
         return dtoMapper.fromClient(client);
     }
     @Override
-    public void deleteClient(Long clientId) {
-clientRepo.deleteById(clientId);
+    public void deleteClient(String clientId) {
+        clientRepo.deleteById(clientId);
     }
-@Override
-public List<OperationsDTO> CompteHistorique(Long accountId) {
+    @Override
+    public List<OperationsDTO> CompteHistorique(String accountId) {
         List<Operation> operationsHistoriques=operationRepo.findByCompteBancaireId(accountId);
         return  operationsHistoriques.stream().map(operation ->
-             dtoMapper.fromOperation(operation))
-             .collect(Collectors.toList());
+                        dtoMapper.fromOperation(operation))
+                .collect(Collectors.toList());
 
     }
 
     @Override
     public List<ClientDTO> searchClient(String motcle) {
-         List<Client> clients=clientRepo.findByNomContainingIgnoreCase(motcle);
-         List<ClientDTO> clientDTOS= clients.stream().map(client->dtoMapper.fromClient(client)).collect(Collectors.toList());
-return clientDTOS;
+        List<Client> clients=clientRepo.findByNomContainingIgnoreCase(motcle);
+        List<ClientDTO> clientDTOS= clients.stream().map(client->dtoMapper.fromClient(client)).collect(Collectors.toList());
+        return clientDTOS;
     }
 
 
@@ -246,13 +264,42 @@ return clientDTOS;
         }
     }
     @Override
-    public CompteBancaireDTO updateCompte(Long compteId, CompteBancaireDTO compteBancaireDTO) {
+    public CompteBancaireDTO updateCompte(String compteId, CompteBancaireDTO compteBancaireDTO) {
         CompteBancaire compte = compteBancaireRepo.findById(compteId)
                 .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte not found"));
+
+        String requestedType = compteBancaireDTO.getType() != null ? compteBancaireDTO.getType().toUpperCase() : null;
+        boolean wantCourant = requestedType != null && requestedType.contains("COURANT");
+        boolean wantEpargne = requestedType != null && requestedType.contains("EPARGNE");
+        boolean isCourant = compte instanceof CompteCourant;
+        boolean isEpargne = compte instanceof CompteEpargne;
+
+        if (requestedType != null && ((wantCourant && isEpargne) || (wantEpargne && isCourant))) {
+            String discriminatorValue = wantCourant ? "CompteCourant" : "CompteEpargne";
+            double decouvert = wantCourant
+                    ? (compteBancaireDTO.getDecouvert() != null ? compteBancaireDTO.getDecouvert() : 0.0)
+                    : 0.0;
+            double tauxInteret = wantEpargne
+                    ? (compteBancaireDTO.getTauxInteret() != null ? compteBancaireDTO.getTauxInteret() : 0.0)
+                    : 0.0;
+
+            compteBancaireRepo.updateAccountDiscriminator(compteId, discriminatorValue, decouvert, tauxInteret);
+
+            entityManager.flush();
+            entityManager.clear();
+
+            compte = compteBancaireRepo.findById(compteId)
+                    .orElseThrow(() -> new CompteBancaireNotFoundExceptions("Compte not found"));
+        }
 
         if (compteBancaireDTO.getNumeroCompte() != null && !compteBancaireDTO.getNumeroCompte().isEmpty()) {
             compte.setNumeroCompte(compteBancaireDTO.getNumeroCompte());
         }
+
+        if (compteBancaireDTO.getDateCreation() != null) {
+            compte.setDateCreation(compteBancaireDTO.getDateCreation());
+        }
+
         compte.setSolde(compteBancaireDTO.getSolde());
 
 
@@ -265,6 +312,20 @@ return clientDTOS;
             compte.setDevise(compteBancaireDTO.getDevise());
         }
 
+        if (compte instanceof CompteCourant) {
+            CompteCourant cc = (CompteCourant) compte;
+            if (compteBancaireDTO.getDecouvert() != null) {
+                cc.setDecouvert(compteBancaireDTO.getDecouvert());
+            }
+        }
+
+        if (compte instanceof CompteEpargne) {
+            CompteEpargne ce = (CompteEpargne) compte;
+            if (compteBancaireDTO.getTauxInteret() != null) {
+                ce.setTauxInteret(compteBancaireDTO.getTauxInteret());
+            }
+        }
+
         CompteBancaire updatedCompte = compteBancaireRepo.save(compte);
 
         if (updatedCompte instanceof CompteCourant) {
@@ -275,7 +336,7 @@ return clientDTOS;
     }
 
     @Override
-    public void deleteCompte(Long accountId) {
+    public void deleteCompte(String accountId) {
         CompteBancaire compte = compteBancaireRepo.findById(accountId).orElse(null);
 
         if (compte != null) {

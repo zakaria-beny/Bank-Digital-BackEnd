@@ -45,7 +45,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
             } catch (Exception e) {
-                // This prevents the application from crashing if the token is invalid or signed with an old key
                 System.out.println("JWT processing failed: " + e.getMessage());
             }
         }

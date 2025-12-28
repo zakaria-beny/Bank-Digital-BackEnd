@@ -38,7 +38,7 @@ public class AuthController {
 
             User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
 
-            // Return the token + role so Angular knows who logged in
+
             return ResponseEntity.ok(new AuthResponse(token, user.getUsername(), user.getRole()));
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid username or password");

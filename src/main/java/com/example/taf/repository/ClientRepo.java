@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ClientRepo extends JpaRepository<Client, Long> {
+public interface ClientRepo extends JpaRepository<Client, String> {
 
     List<Client> findByNomContainingIgnoreCase(String motcle);}

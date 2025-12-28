@@ -27,7 +27,7 @@ public class ClientRestController {
         return compteBancaireServiceRepo.searchClient(motcle);
     }
     @GetMapping("/clients/{id}")
-    public ClientDTO getClient(@PathVariable(name = "id") Long clientId) {
+    public ClientDTO getClient(@PathVariable(name = "id") String clientId) {
         return compteBancaireServiceRepo.getClient(clientId);
 
     }
@@ -36,14 +36,14 @@ public class ClientRestController {
         return compteBancaireServiceRepo.saveClient(clientDTO);
     }
     @PutMapping("/clients/{clientId}")
-    public ClientDTO updateClient(@PathVariable Long clientId,@RequestBody ClientDTO clientDTO) {
+    public ClientDTO updateClient(@PathVariable String clientId,@RequestBody ClientDTO clientDTO) {
         clientDTO.setId(clientId);
         return compteBancaireServiceRepo.UpdateClient(clientDTO);
 
     }
 
     @DeleteMapping("/clients/{id}")
-    public void deleteClient(@PathVariable Long id) {
+    public void deleteClient(@PathVariable String id) {
         compteBancaireServiceRepo.deleteClient(id);
     }
 }
